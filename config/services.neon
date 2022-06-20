@@ -1,0 +1,12 @@
+decorator:
+    Symfony\Component\Console\Command\Command:
+        tags: [kdyby.console.command]
+
+services:
+    - App\Router\RouterFactory::createRouter
+    - App\Console\SqlInitCommand
+
+    todoRepository: App\Repository\TodoRepository
+
+extensions:
+    console: Kdyby\Console\DI\ConsoleExtension

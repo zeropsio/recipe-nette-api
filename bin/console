@@ -1,0 +1,10 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/../vendor/autoload.php';
+
+/** @var \Nette\DI\Container $container */
+$configurator = App\Bootstrap::boot();
+$container = $configurator->createContainer();
+$application = $container->getByType(Nette\Application\Application::class);
+$application->run();

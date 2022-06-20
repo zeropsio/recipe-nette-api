@@ -1,0 +1,13 @@
+api:
+  build:
+    base: [php@8.0]
+    build:
+      - mv config/local.neon.dist config/local.neon
+      - composer install --optimize-autoloader --no-dev
+    deploy: [.]
+    cache: [ 'vendor' ]
+  run:
+    init:
+      - bin/console app:sql-init
+      - rm -rf temp/*
+    documentRoot: 'www/'
