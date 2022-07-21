@@ -6,7 +6,6 @@ namespace App\Presenters;
 
 use App\OutputDTO\Id;
 use App\OutputDTO\Todo;
-use App\OutputDTO\TodoList;
 use App\Repository\TodoRepository;
 use Nette\Application\Responses\TextResponse;
 
@@ -40,12 +39,12 @@ class TodosPresenter extends \Nette\Application\UI\Presenter
         $todos = $this->todoRepository->findAll();
         $list = [];
 
-        foreach ($todos as $record){
+        foreach ($todos as $record) {
             $list[] = new Todo($record->id, (bool)$record->completed, $record->text);
         }
 
         $this->sendJson(
-            new TodoList($list)
+            $list
         );
     }
 
@@ -55,17 +54,17 @@ class TodosPresenter extends \Nette\Application\UI\Presenter
         $input = $this->getInput();
         $text = null;
 
-        if (array_key_exists('text', $input) === true){
+        if (array_key_exists('text', $input) === true) {
             $text = $input['text'];
         }
 
-        if  (empty($text)){
+        if (empty($text)) {
             throw new \UnexpectedValueException('invalid input value - text');
         }
 
         $newId = $this->todoRepository->created($text);
 
-        if ($newId <= 0){
+        if ($newId <= 0) {
             throw new \RuntimeException;
         }
 
@@ -81,7 +80,7 @@ class TodosPresenter extends \Nette\Application\UI\Presenter
     {
         $todo = $this->todoRepository->find($id);
 
-        if ($todo === null){
+        if ($todo === null) {
             throw new \InvalidArgumentException('record not found');
         }
 
@@ -96,20 +95,20 @@ class TodosPresenter extends \Nette\Application\UI\Presenter
         $patch = [];
         $input = $this->getInput();
 
-        if (array_key_exists('text', $input) === true){
+        if (array_key_exists('text', $input) === true) {
             $patch['text'] = $input['text'];
         }
-        if (array_key_exists('completed', $input) === true){
+        if (array_key_exists('completed', $input) === true) {
             $patch['completed'] = (bool)$input['completed'];
         }
 
-        if (!empty($patch)){
+        if (!empty($patch)) {
             $this->todoRepository->patch($id, $patch);
         }
 
         $todo = $this->todoRepository->find($id);
 
-        if ($todo === null){
+        if ($todo === null) {
             throw new \InvalidArgumentException('record not found');
         }
 
@@ -132,11 +131,11 @@ class TodosPresenter extends \Nette\Application\UI\Presenter
     private function getInput(): array
     {
         $input = file_get_contents('php://input');
-        if (empty($input)){
+        if (empty($input)) {
             return [];
         }
         $data = \json_decode($input, true);
-        if (empty($data)){
+        if (empty($data)) {
             return [];
         }
 
