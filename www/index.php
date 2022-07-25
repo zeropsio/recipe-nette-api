@@ -13,5 +13,6 @@ if ("OPTIONS" === $_SERVER['REQUEST_METHOD']) {
 
 $configurator = App\Bootstrap::boot();
 $container = $configurator->createContainer();
-$application = $container->getByType(Contributte\Middlewares\Application\IApplication::class);
+$application = $container->getByType(Nette\Application\Application::class);
+//$application = $container->getByType(Contributte\Middlewares\Application\IApplication::class);
 $application->run();

@@ -3,11 +3,11 @@
 return [
     'nettrine.dbal' => [
         'connection' => [
-            'host' => \getenv('DB_HOSTNAME') ?: 'mariadb',
+            'host' => \getenv('db_hostname') ?: 'mariadb',
             'driver' => \getenv('DB_DRIVER') ?: 'pdo_mysql',
-            'dbname' => \getenv('DB_HOSTNAME') ?: 'db',
-            'user' => \getenv('DB_HOSTNAME') ?: 'db',
-            'password' => \getenv('DB_PASSWORD') ?: 'password',
+            'dbname' => \getenv('db_hostname') ?: 'db',
+            'user' => \getenv('db_hostname') ?: 'db',
+            'password' => \getenv('db_password') ?: 'password',
         ]
     ]
 ];

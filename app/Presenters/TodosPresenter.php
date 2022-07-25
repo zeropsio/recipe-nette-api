@@ -9,6 +9,8 @@ use App\OutputDTO\Todo as TodoDTO;
 use App\Entity\Todo;
 use App\Repository\TodoRepository;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityNotFoundException;
+use Nette\Application\BadRequestException;
 use Nette\Application\Responses\TextResponse;
 use Nette\Application\UI\Presenter;
 use Nettrine\ORM\EntityManagerDecorator;
@@ -74,12 +76,17 @@ class TodosPresenter extends Presenter
     }
 
     // GET /todos/<id>
+
+    /**
+     * @throws BadRequestException
+     * @throws \Nette\Application\AbortException
+     */
     public function actionDetail(int $id)
     {
         $todo = $this->em->getRepository(Todo::class)->find($id);
 
         if ($todo === null) {
-            throw new \InvalidArgumentException('record not found');
+            throw new BadRequestException('record not found');
         }
 
         $this->sendJson(
@@ -88,10 +95,19 @@ class TodosPresenter extends Presenter
     }
 
     // PATCH /todos/<id>
+
+    /**
+     * @throws BadRequestException
+     * @throws \Nette\Application\AbortException
+     */
     public function actionUpdate(int $id)
     {
         $input = $this->getInput();
         $todo = $this->em->getRepository(Todo::class)->find($id);
+
+        if ($todo === null) {
+            throw new BadRequestException('record not found');
+        }
 
         if (array_key_exists('text', $input) === true) {
             $todo->setText($input["text"]);

@@ -16,8 +16,13 @@ extensions:
 middleware:
     debug: %debugMode%
     middlewares:
+        - Contributte\Middlewares\TryCatchMiddleware
         - Tuupola\Middleware\CorsMiddleware
-        - Contributte\Middlewares\PresenterMiddleware
+        presenter:
+            class: Contributte\Middlewares\PresenterMiddleware
+            setup:
+                - setErrorPresenter(Error)
+                - setCatchExceptions(%debugMode%)
 
 
 nettrine.orm.attributes:

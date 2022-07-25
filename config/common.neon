@@ -8,7 +8,8 @@ parameters:
 application:
 	errorPresenter: Error
 	mapping:
-		*: App\*Module\Presenters\*Presenter
+	    Error: App\*Presenter
+	    *: App\*Module\Presenters\*Presenter
 
 
 session:

@@ -19,26 +19,27 @@ class Bootstrap
         $configurator->enableTracy($appDir . '/log');
 
         //Tracy\Debugger::$logSeverity = E_ALL & ~E_NOTICE;
-        /*Tracy\Debugger::setLogger(new class extends Tracy\Logger
-        {
-            public function __construct()
-            {
-                // intentionally do not call parent constructor, we don't actually need the parameters
-            }
+        /*Tracy\Debugger::setLogger(
+            new class extends Tracy\Logger {
+                public function __construct()
+                {
+                    // intentionally do not call parent constructor, we don't actually need the parameters
+                }
 
-            public function log($value, $priority = self::INFO)
-            {
-                $log = match ($priority) {
-                    self::DEBUG => LOG_DEBUG,
-                    self::INFO => LOG_INFO,
-                    self::WARNING => LOG_WARNING,
-                    self::ERROR, self::EXCEPTION => LOG_ERR,
-                    self::CRITICAL => LOG_CRIT,
-                };
+                public function log($value, $priority = self::INFO)
+                {
+                    $log = match ($priority) {
+                        self::DEBUG => LOG_DEBUG,
+                        self::INFO => LOG_INFO,
+                        self::WARNING => LOG_WARNING,
+                        self::ERROR, self::EXCEPTION => LOG_ERR,
+                        self::CRITICAL => LOG_CRIT,
+                    };
 
-                syslog(LOG_LOCAL0 | $log, str_replace("\n", " ", $this->formatMessage($value)) . "\n");
+                    syslog(LOG_LOCAL0 | $log, str_replace("\n", " ", $this->formatMessage($value)) . "\n");
+                }
             }
-        });*/
+        );*/
 
         Tracy\Debugger::enable(Tracy\Debugger::DEBUG);
 
