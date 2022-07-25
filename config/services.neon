@@ -1,12 +1,22 @@
-decorator:
-    Symfony\Component\Console\Command\Command:
-        tags: [kdyby.console.command]
-
 services:
     - App\Router\RouterFactory::createRouter
-    - App\Console\SqlInitCommand
-
-    todoRepository: App\Repository\TodoRepository
 
 extensions:
-    console: Kdyby\Console\DI\ConsoleExtension
+    console: Contributte\Console\DI\ConsoleExtension(%consoleMode%)
+
+    nettrine.dbal: Nettrine\DBAL\DI\DbalExtension
+    nettrine.orm: Nettrine\ORM\DI\OrmExtension
+    nettrine.cache: Nettrine\Cache\DI\CacheExtension
+    nettrine.fixtures: Nettrine\Fixtures\DI\FixturesExtension
+    nettrine.migrations: Nettrine\Migrations\DI\MigrationsExtension
+    nettrine.orm.console: Nettrine\ORM\DI\OrmConsoleExtension(%consoleMode%)
+    nettrine.orm.attributes: Nettrine\ORM\DI\OrmAttributesExtension
+
+
+nettrine.orm.attributes:
+    mapping: [
+        App\Entity: %appDir%/Entity
+    ]
+
+nettrine.migrations:
+  directory: %rootDir%/db/migrations

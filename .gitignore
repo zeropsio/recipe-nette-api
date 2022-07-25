@@ -3,3 +3,5 @@ config/local.neon
 vendor
 log/*
 temp/*
+.docker
+docker-compose.yml

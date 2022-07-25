@@ -10,16 +10,17 @@ use Tracy;
 
 class Bootstrap
 {
-	public static function boot(): Configurator
-	{
-		$configurator = new Configurator;
-		$appDir = dirname(__DIR__);
+    public static function boot(): Configurator
+    {
+        $configurator = new Configurator;
+        $appDir = dirname(__DIR__);
 
         //$configurator->setDebugMode('secret@23.75.345.200'); // enable for your remote IP
-		$configurator->enableTracy($appDir . '/log');
+        $configurator->enableTracy($appDir . '/log');
 
         //Tracy\Debugger::$logSeverity = E_ALL & ~E_NOTICE;
-        Tracy\Debugger::setLogger(new class extends Tracy\Logger {
+        /*Tracy\Debugger::setLogger(new class extends Tracy\Logger
+        {
             public function __construct()
             {
                 // intentionally do not call parent constructor, we don't actually need the parameters
@@ -27,9 +28,9 @@ class Bootstrap
 
             public function log($value, $priority = self::INFO)
             {
-                $log = match($priority){
+                $log = match ($priority) {
                     self::DEBUG => LOG_DEBUG,
-		            self::INFO => LOG_INFO,
+                    self::INFO => LOG_INFO,
                     self::WARNING => LOG_WARNING,
                     self::ERROR, self::EXCEPTION => LOG_ERR,
                     self::CRITICAL => LOG_CRIT,
@@ -37,21 +38,25 @@ class Bootstrap
 
                 syslog(LOG_LOCAL0 | $log, str_replace("\n", " ", $this->formatMessage($value)) . "\n");
             }
-        });
+        });*/
 
-        Tracy\Debugger::enable(Tracy\Debugger::PRODUCTION);
+        Tracy\Debugger::enable(Tracy\Debugger::DEBUG);
 
-		$configurator->setTimeZone('Europe/Prague');
-		$configurator->setTempDirectory($appDir . '/temp');
+        $configurator->addParameters([
+            'rootDir' => realpath(__DIR__ . '/..'),
+        ]);
 
-		$configurator->createRobotLoader()
-			->addDirectory(__DIR__)
-			->register();
+        $configurator->setTimeZone('Europe/Prague');
+        $configurator->setTempDirectory($appDir . '/temp');
 
-		$configurator->addConfig($appDir . '/config/common.neon');
-		$configurator->addConfig($appDir . '/config/services.neon');
-		$configurator->addConfig($appDir . '/config/local.neon');
+        $configurator->createRobotLoader()
+            ->addDirectory(__DIR__)
+            ->register();
 
-		return $configurator;
-	}
+        $configurator->addConfig($appDir . '/config/common.neon');
+        $configurator->addConfig($appDir . '/config/services.neon');
+        $configurator->addConfig($appDir . '/config/local.neon');
+
+        return $configurator;
+    }
 }
