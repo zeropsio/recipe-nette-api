@@ -11,6 +11,13 @@ extensions:
     nettrine.migrations: Nettrine\Migrations\DI\MigrationsExtension
     nettrine.orm.console: Nettrine\ORM\DI\OrmConsoleExtension(%consoleMode%)
     nettrine.orm.attributes: Nettrine\ORM\DI\OrmAttributesExtension
+    middleware: Contributte\Middlewares\DI\NetteMiddlewaresExtension
+
+middleware:
+    debug: %debugMode%
+    middlewares:
+        - Tuupola\Middleware\CorsMiddleware
+        - Contributte\Middlewares\PresenterMiddleware
 
 
 nettrine.orm.attributes:
