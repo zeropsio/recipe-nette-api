@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Migrations;
 
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -14,24 +15,22 @@ final class Version20220722143540 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Add Todos';
+        return 'Create todos tables for PostgreSQL';
     }
 
     public function up(Schema $schema): void
     {
-        $sqlInit = json_decode(\getenv('ZEROPS_RECIPE_DATA_SEED') ?: '["new todo (1)"]', true);
-
-        if ($sqlInit === false) {
-            throw new \InvalidArgumentException('invalid input data - sql init');
-        }
-
-        foreach ($sqlInit as $item) {
-            $this->addSql("INSERT INTO `todos` (`completed`, `text`) VALUES (?, ?)", [0, $item]);
-        }
+        $this->skipIf(
+            !($this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform),
+            'Migration can only be executed safely on \'postgresql\'.'
+        );
+        $this->addSql(
+            'CREATE TABLE todos (id SERIAL NOT NULL, completed BOOLEAN NOT NULL, text VARCHAR(255) NOT NULL, PRIMARY KEY(id));'
+        );
     }
 
     public function down(Schema $schema): void
     {
-        $this->addSql('TRUNCATE TABLE `todos`');
+        $this->addSql('DROP TABLE todos');
     }
 }
