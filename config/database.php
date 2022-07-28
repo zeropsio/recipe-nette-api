@@ -1,9 +1,13 @@
 <?php
 
 return [
-    'database' => [
-        'dsn' => \getenv('DB_DSN') ?: 'mysql:host=localhost;dbname=test',
-        'user' => \getenv('DB_USERNAME') ?: 'root',
-        'password' => \getenv('DB_PASSWORD') ?: '',
+    'nettrine.dbal' => [
+        'connection' => [
+            'host' => \getenv('db_hostname') ?: 'localhost',
+            'driver' => \getenv('DB_DRIVER') ?: 'pdo_mysql',
+            'dbname' => \getenv('db_hostname') ?: 'db',
+            'user' => \getenv('db_hostname') ?: 'db',
+            'password' => \getenv('db_password') ?: 'password',
+        ]
     ]
 ];

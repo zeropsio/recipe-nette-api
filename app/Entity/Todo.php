@@ -4,26 +4,34 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: "App\Repository\TodoRepository")]
+#[ORM\Table(name: "todos")]
 class Todo
 {
-    /** @var int */
-    public $id;
+    #[ORM\Id]
+    #[ORM\Column(type: "integer")]
+    #[ORM\GeneratedValue]
+    private int $id;
 
-    /** @var bool */
-    public $completed;
 
-    /** @var string */
-    public $text;
+    #[ORM\Column(type: "boolean")]
+    private bool $completed;
+
+    #[ORM\Column(type: "string")]
+    private string $text;
+
+    public function __construct(string $text, bool $completed = false)
+    {
+        $this->completed = $completed;
+        $this->text = $text;
+    }
 
 
     public function getId(): int
     {
         return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
     }
 
     public function getCompleted(): bool

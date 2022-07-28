@@ -5,25 +5,30 @@ declare(strict_types=1);
 namespace App\Presenters;
 
 use App\OutputDTO\Id;
-use App\OutputDTO\Todo;
+use App\OutputDTO\Todo as TodoDTO;
+use App\Entity\Todo;
 use App\Repository\TodoRepository;
+use Nette\Application\BadRequestException;
 use Nette\Application\Responses\TextResponse;
+use Nette\Application\UI\Presenter;
+use Nettrine\ORM\EntityManagerDecorator;
+use Psr\Log\LoggerInterface;
 
-class TodosPresenter extends \Nette\Application\UI\Presenter
+class TodosPresenter extends Presenter
 {
-    /** @var TodoRepository */
-    private $todoRepository;
+    private EntityManagerDecorator $em;
+    private LoggerInterface $log;
 
-    public function __construct(TodoRepository $todoRepository)
+    public function __construct(EntityManagerDecorator $em, LoggerInterface $log)
     {
         parent::__construct();
-
-        $this->todoRepository = $todoRepository;
+        $this->em = $em;
+        $this->log = $log;
     }
 
 
     // GET /
-    public function actionIndex()
+    public function actionIndex(): void
     {
         $readme = file_get_contents(__DIR__ . '/../../README.md');
 
@@ -34,13 +39,13 @@ class TodosPresenter extends \Nette\Application\UI\Presenter
 
 
     // GET /todos
-    public function actionListing()
+    public function actionListing(): void
     {
-        $todos = $this->todoRepository->findAll();
+        $todos = $this->em->getRepository(Todo::class)->findAll();
         $list = [];
 
         foreach ($todos as $record) {
-            $list[] = new Todo($record->id, (bool)$record->completed, $record->text);
+            $list[] = new TodoDTO($record->getId(), (bool)$record->getCompleted(), $record->getText());
         }
 
         $this->sendJson(
@@ -49,7 +54,7 @@ class TodosPresenter extends \Nette\Application\UI\Presenter
     }
 
     // POST /todos
-    public function actionCreate()
+    public function actionCreate(): void
     {
         $input = $this->getInput();
         $text = null;
@@ -62,65 +67,78 @@ class TodosPresenter extends \Nette\Application\UI\Presenter
             throw new \UnexpectedValueException('invalid input value - text');
         }
 
-        $newId = $this->todoRepository->created($text);
+        /** @var TodoRepository */
+        $todoRepository = $this->em->getRepository(Todo::class);
 
-        if ($newId <= 0) {
-            throw new \RuntimeException;
-        }
+        $todo = $todoRepository->created($text);
 
-        $todo = $this->todoRepository->find($newId);
+        $this->log->debug("creating new todo", ["id" => $todo->getId()]);
 
         $this->sendJson(
-            new Todo($todo->id, (bool)$todo->completed, $todo->text)
+            new TodoDTO($todo->getId(), $todo->getCompleted(), $todo->getText())
         );
     }
 
-    // GET /todos/<id>
-    public function actionDetail(int $id)
+    /**
+     * GET todos/<id>
+     *
+     * @throws BadRequestException
+     * @throws \Nette\Application\AbortException
+     */
+    public function actionDetail(int $id): void
     {
-        $todo = $this->todoRepository->find($id);
+        $todo = $this->em->getRepository(Todo::class)->find($id);
 
         if ($todo === null) {
-            throw new \InvalidArgumentException('record not found');
+            throw new BadRequestException('record not found');
         }
 
         $this->sendJson(
-            new Todo($todo->id, (bool)$todo->completed, $todo->text)
+            new TodoDTO($todo->getId(), $todo->getCompleted(), $todo->getText())
         );
     }
 
-    // PATCH /todos/<id>
-    public function actionUpdate(int $id)
+
+    /**
+     * PATCH /todos/<id>
+     *
+     * @throws BadRequestException
+     * @throws \Nette\Application\AbortException
+     */
+    public function actionUpdate(int $id): void
     {
-        $patch = [];
         $input = $this->getInput();
+        $todo = $this->em->getRepository(Todo::class)->find($id);
+
+        if ($todo === null) {
+            throw new BadRequestException('record not found');
+        }
 
         if (array_key_exists('text', $input) === true) {
-            $patch['text'] = $input['text'];
+            $todo->setText($input["text"]);
         }
         if (array_key_exists('completed', $input) === true) {
-            $patch['completed'] = (bool)$input['completed'];
+            $todo->setCompleted((bool)$input["completed"]);
         }
 
-        if (!empty($patch)) {
-            $this->todoRepository->patch($id, $patch);
-        }
-
-        $todo = $this->todoRepository->find($id);
-
-        if ($todo === null) {
-            throw new \InvalidArgumentException('record not found');
-        }
+        $this->em->persist($todo);
+        $this->em->flush();
 
         $this->sendJson(
-            new Todo($todo->id, (bool)$todo->completed, $todo->text)
+            new TodoDTO($todo->getId(), (bool)$todo->getCompleted(), $todo->getText())
         );
     }
 
     // DELETE /todos/<id>
-    public function actionDelete(int $id)
+    public function actionDelete(int $id): void
     {
-        $this->todoRepository->delete($id);
+        $todo = $this->em->getRepository(Todo::class)->find($id);
+        if ($todo == null) {
+            throw new BadRequestException('record not found');
+        }
+
+        $this->em->remove($todo);
+        $this->em->flush();
 
         $this->sendJson(
             new Id($id)
@@ -128,6 +146,9 @@ class TodosPresenter extends \Nette\Application\UI\Presenter
     }
 
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getInput(): array
     {
         $input = file_get_contents('php://input');

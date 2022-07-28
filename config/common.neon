@@ -3,12 +3,13 @@ includes:
 
 
 parameters:
-
+    rootDir:
 
 application:
 	errorPresenter: Error
 	mapping:
-		*: App\*Module\Presenters\*Presenter
+	    Error: App\*Presenter
+	    *: App\*Module\Presenters\*Presenter
 
 
 session:
@@ -22,3 +23,4 @@ di:
 
 tracy:
     logSeverity: E_ALL & ~E_NOTICE
+

@@ -10,11 +10,11 @@ use Nette\StaticClass;
 
 final class RouterFactory
 {
-	use StaticClass;
+    use StaticClass;
 
-	public static function createRouter(): RouteList
-	{
-		$router = new RouteList;
+    public static function createRouter(): RouteList
+    {
+        $router = new RouteList;
 
         $router->addRoute('/', 'Todos:index');
 
@@ -30,6 +30,6 @@ final class RouterFactory
             'priority' => 1
         ]);
 
-		return $router;
-	}
+        return $router;
+    }
 }
