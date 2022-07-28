@@ -12,17 +12,29 @@ extensions:
     nettrine.orm.console: Nettrine\ORM\DI\OrmConsoleExtension(%consoleMode%)
     nettrine.orm.attributes: Nettrine\ORM\DI\OrmAttributesExtension
     middleware: Contributte\Middlewares\DI\NetteMiddlewaresExtension
+    monolog: Contributte\Monolog\DI\MonologExtension
+
+monolog:
+    channel:
+        default:
+            handlers:
+                - Monolog\Handler\SyslogHandler(api, local0)
+
 
 middleware:
     debug: %debugMode%
     middlewares:
         - Contributte\Middlewares\TryCatchMiddleware
-        - Tuupola\Middleware\CorsMiddleware
+        cors:
+            class: Tuupola\Middleware\CorsMiddleware
+            arguments:
+                options:
+                    headers.allow: ['content-type']
         presenter:
-            class: Contributte\Middlewares\PresenterMiddleware
+            class: App\Middleware\PresenterMiddleware
             setup:
                 - setErrorPresenter(Error)
-                - setCatchExceptions(%debugMode%)
+                - setCatchExceptions(true)
 
 
 nettrine.orm.attributes:

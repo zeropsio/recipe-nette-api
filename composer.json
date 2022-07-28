@@ -33,11 +33,16 @@
     "nettrine/migrations": "^0.8.0",
     "nettrine/fixtures": "^0.6.2",
     "contributte/middlewares": "^0.10.2",
-    "tuupola/cors-middleware": "^1.3"
+    "tuupola/cors-middleware": "^1.3",
+    "contributte/monolog": "^0.5.0"
   },
   "require-dev": {
     "nette/tester": "^2.3",
-    "squizlabs/php_codesniffer": "^3.7"
+    "squizlabs/php_codesniffer": "^3.7",
+    "phpstan/phpstan": "^1.8",
+    "phpstan/phpstan-doctrine": "^1.3",
+    "phpstan/extension-installer": "^1.1",
+    "phpstan/phpstan-nette": "^1.0"
   },
   "autoload": {
     "psr-4": {
@@ -47,7 +52,8 @@
   "minimum-stability": "stable",
   "config": {
     "allow-plugins": {
-      "symfony/thanks": false
+      "symfony/thanks": false,
+      "phpstan/extension-installer": true
     }
   }
 }

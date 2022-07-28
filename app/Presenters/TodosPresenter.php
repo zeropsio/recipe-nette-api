@@ -8,26 +8,27 @@ use App\OutputDTO\Id;
 use App\OutputDTO\Todo as TodoDTO;
 use App\Entity\Todo;
 use App\Repository\TodoRepository;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityNotFoundException;
 use Nette\Application\BadRequestException;
 use Nette\Application\Responses\TextResponse;
 use Nette\Application\UI\Presenter;
 use Nettrine\ORM\EntityManagerDecorator;
+use Psr\Log\LoggerInterface;
 
 class TodosPresenter extends Presenter
 {
     private EntityManagerDecorator $em;
+    private LoggerInterface $log;
 
-    public function __construct(EntityManagerDecorator $em)
+    public function __construct(EntityManagerDecorator $em, LoggerInterface $log)
     {
         parent::__construct();
         $this->em = $em;
+        $this->log = $log;
     }
 
 
     // GET /
-    public function actionIndex()
+    public function actionIndex(): void
     {
         $readme = file_get_contents(__DIR__ . '/../../README.md');
 
@@ -38,7 +39,7 @@ class TodosPresenter extends Presenter
 
 
     // GET /todos
-    public function actionListing()
+    public function actionListing(): void
     {
         $todos = $this->em->getRepository(Todo::class)->findAll();
         $list = [];
@@ -53,7 +54,7 @@ class TodosPresenter extends Presenter
     }
 
     // POST /todos
-    public function actionCreate()
+    public function actionCreate(): void
     {
         $input = $this->getInput();
         $text = null;
@@ -66,22 +67,25 @@ class TodosPresenter extends Presenter
             throw new \UnexpectedValueException('invalid input value - text');
         }
 
+        /** @var TodoRepository */
         $todoRepository = $this->em->getRepository(Todo::class);
 
         $todo = $todoRepository->created($text);
+
+        $this->log->debug("creating new todo", ["id" => $todo->getId()]);
 
         $this->sendJson(
             new TodoDTO($todo->getId(), $todo->getCompleted(), $todo->getText())
         );
     }
 
-    // GET /todos/<id>
-
     /**
+     * GET todos/<id>
+     *
      * @throws BadRequestException
      * @throws \Nette\Application\AbortException
      */
-    public function actionDetail(int $id)
+    public function actionDetail(int $id): void
     {
         $todo = $this->em->getRepository(Todo::class)->find($id);
 
@@ -94,13 +98,14 @@ class TodosPresenter extends Presenter
         );
     }
 
-    // PATCH /todos/<id>
 
     /**
+     * PATCH /todos/<id>
+     *
      * @throws BadRequestException
      * @throws \Nette\Application\AbortException
      */
-    public function actionUpdate(int $id)
+    public function actionUpdate(int $id): void
     {
         $input = $this->getInput();
         $todo = $this->em->getRepository(Todo::class)->find($id);
@@ -125,9 +130,13 @@ class TodosPresenter extends Presenter
     }
 
     // DELETE /todos/<id>
-    public function actionDelete(int $id)
+    public function actionDelete(int $id): void
     {
         $todo = $this->em->getRepository(Todo::class)->find($id);
+        if ($todo == null) {
+            throw new BadRequestException('record not found');
+        }
+
         $this->em->remove($todo);
         $this->em->flush();
 
@@ -137,6 +146,9 @@ class TodosPresenter extends Presenter
     }
 
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getInput(): array
     {
         $input = file_get_contents('php://input');

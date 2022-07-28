@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Presenters;
 
+use http\Exception\RuntimeException;
 use Nette;
 use Nette\Application\Responses;
 use Nette\Http;
 use Tracy\ILogger;
 
 
-final class ErrorPresenter implements Nette\Application\IPresenter
+final class ErrorPresenter extends Nette\Application\UI\Presenter
 {
     use Nette\SmartObject;
 

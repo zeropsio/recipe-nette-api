@@ -7,7 +7,11 @@ namespace App\Repository;
 
 use App\Entity\Todo;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\Persistence\ObjectRepository;
 
+/**
+ * @extends EntityRepository<Todo>
+ */
 class TodoRepository extends EntityRepository
 {
     public function created(string $text): Todo
